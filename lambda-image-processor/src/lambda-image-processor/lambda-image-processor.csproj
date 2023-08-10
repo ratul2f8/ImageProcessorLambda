@@ -16,6 +16,7 @@
     <PackageReference Include="Amazon.Lambda.S3Events" Version="3.0.0" />
     <PackageReference Include="AWSSDK.S3" Version="3.7.104.2" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\image-processor-classlib\image-processor-classlib.csproj" />
