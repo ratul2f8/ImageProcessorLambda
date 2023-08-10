@@ -42,9 +42,8 @@ public class Function
                 var objectKey = s3Event.Object.Key;
                 var response = await S3Client.GetObjectMetadataAsync(bucketName, objectKey);
                 var contentType = response.Headers.ContentType;
-                context.Logger.LogInformation(
-                    $"Key is: {objectKey}. Content Type is: {contentType}"
-                );
+                // context.Logger.LogDebug($"Key is: {objectKey}. Content Type is: {contentType}");
+                Console.WriteLine($"Key is: {objectKey}. Content Type is: {contentType}");
                 if (
                     !response.Headers.ContentType.Contains("image/")
                     || response.Metadata["x-amz-meta-processed"] == true.ToString()
@@ -59,11 +58,13 @@ public class Function
                 );
                 using var outputStream = new MemoryStream();
                 await ImageProcessorUtils.ConvertImageToWebP(inputStream, outputStream);
+                var key =
+                    response.Metadata["x-amz-preferred-key"] ?? $"{prefix}/{Guid.NewGuid()}.webp";
                 await S3Client.PutObjectAsync(
                     new PutObjectRequest
                     {
                         BucketName = bucketName,
-                        Key = $"{prefix}/{Guid.NewGuid()}.webp",
+                        Key = key,
                         Metadata = { ["x-amz-meta-processed"] = true.ToString() },
                         ContentType = "image/webp",
                         InputStream = outputStream
@@ -72,11 +73,11 @@ public class Function
             }
             catch (Exception e)
             {
-                context.Logger.LogError(
-                    $"Error getting object {s3Event.Object.Key} from bucket {s3Event.Bucket.Name}. Make sure they exist and your bucket is in the same region as this function."
-                );
+                // context.Logger.LogError(
+                //     $"Error getting object {s3Event.Object.Key} from bucket {s3Event.Bucket.Name}. Make sure they exist and your bucket is in the same region as this function."
+                // );
                 context.Logger.LogError(e.Message);
-                context.Logger.LogError(e.StackTrace);
+                // context.Logger.LogError(e.StackTrace);
                 throw;
             }
         }
